@@ -1,0 +1,43 @@
+name: Backend CI/CD
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+ build_and_deploy:
+    name: Build and Deploy
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        client:
+          - client1
+          - client2
+        environment:
+          - dev
+          - prod    
+steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v2
+
+      - name: Install Dependencies
+        run: npm ci
+
+      - name: Run Tests
+        run: npm test
+
+      - name: Build Backend
+        run: npm run build
+
+      - name: Deploy to UAT
+        if: github.ref == 'refs/heads/main'  
+        run: |
+          for client in $CLIENTS; do
+            echo "Deploying backend to UAT for $client..."
+    
+      - name: Deploy to Production
+        if: github.ref == 'refs/tags/*'  
+        run: |
+          for client in $CLIENTS; do
+            echo "Deploying backend to production for $client..."
